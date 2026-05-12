@@ -1,579 +1,342 @@
-
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); }
-.app { padding: 1.5rem 1rem; max-width: 700px; margin: 0 auto; }
-.screen { display: none; }
-.screen.active { display: block; }
-
-.hero { text-align: center; padding: 2rem 0 1rem; }
-.hero h1 { font-size: 26px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
-.hero p { font-size: 15px; color: var(--color-text-secondary); max-width: 420px; margin: 0 auto 2rem; }
-
-.topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 2rem; }
-.topic-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
-.topic-card:hover { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
-.topic-card h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
-.topic-card p { font-size: 12px; color: var(--color-text-secondary); }
-.topic-num { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 6px; }
-
-.mode-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-.mode-btn { flex: 1; min-width: 120px; padding: 10px 14px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
-.mode-btn:hover { background: var(--color-background-secondary); }
-.mode-btn.selected { border: 1.5px solid #185FA5; background: #E6F1FB; color: #0C447C; }
-.mode-btn i { font-size: 16px; }
-
-.briefing-box { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
-.briefing-box h2 { font-size: 17px; font-weight: 500; margin-bottom: 10px; color: var(--color-text-primary); }
-.briefing-box p, .briefing-box li { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; }
-.briefing-box ul { padding-left: 1.2rem; }
-
-.question-area { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
-.q-label { font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-.q-text { font-size: 16px; font-weight: 500; color: var(--color-text-primary); line-height: 1.6; margin-bottom: 1.25rem; }
-
-.mc-options { display: grid; gap: 8px; }
-.mc-opt { padding: 12px 14px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); cursor: pointer; font-size: 14px; color: var(--color-text-primary); transition: all 0.15s; display: flex; gap: 10px; align-items: flex-start; }
-.mc-opt:hover { border-color: var(--color-border-primary); }
-.mc-opt.selected { border: 1.5px solid #185FA5; background: #E6F1FB; color: #0C447C; }
-.mc-opt.correct { border: 1.5px solid #0F6E56; background: #E1F5EE; color: #085041; }
-.mc-opt.wrong { border: 1.5px solid #993C1D; background: #FAECE7; color: #4A1B0C; }
-.opt-letter { font-weight: 500; min-width: 18px; }
-
-.eq-input { width: 100%; min-height: 120px; padding: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; font-family: var(--font-sans); color: var(--color-text-primary); background: var(--color-background-primary); resize: vertical; line-height: 1.6; }
-.eq-input:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,0.12); }
-
-.table-area { overflow-x: auto; margin-bottom: 1rem; }
-.study-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.study-table th { background: var(--color-background-secondary); padding: 10px 12px; text-align: left; font-weight: 500; font-size: 12px; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
-.study-table td { padding: 8px 10px; border: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
-.study-table textarea { width: 100%; min-height: 60px; border: none; background: transparent; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-primary); resize: vertical; outline: none; }
-.study-table textarea:focus { background: var(--color-background-info); }
-
-.btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
-.btn { padding: 10px 20px; border-radius: var(--border-radius-md); font-size: 14px; cursor: pointer; transition: all 0.15s; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
-.btn:hover { background: var(--color-background-secondary); }
-.btn.primary { background: #185FA5; color: white; border-color: #185FA5; }
-.btn.primary:hover { background: #0C447C; }
-.btn.ai-btn { background: #3C3489; color: white; border-color: #3C3489; }
-.btn.ai-btn:hover { background: #26215C; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.feedback-box { border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; font-size: 14px; line-height: 1.7; }
-.feedback-box.loading { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
-.feedback-box.success { background: #E1F5EE; border: 0.5px solid #5DCAA5; color: #085041; }
-.feedback-box.partial { background: #FAEEDA; border: 0.5px solid #EF9F27; color: #412402; }
-.feedback-box.error { background: #FAECE7; border: 0.5px solid #F0997B; color: #4A1B0C; }
-.feedback-label { font-weight: 500; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-
-.progress-bar { height: 3px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
-.progress-fill { height: 100%; background: #185FA5; border-radius: 2px; transition: width 0.3s; }
-
-.score-screen { text-align: center; padding: 2rem 0; }
-.score-big { font-size: 48px; font-weight: 500; color: var(--color-text-primary); margin: 1rem 0 0.5rem; }
-.score-sub { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 2rem; }
-.score-detail { text-align: left; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
-
-.nav-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
-.nav-back { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; display: flex; align-items: center; gap: 4px; padding: 4px 0; }
-.nav-back:hover { color: var(--color-text-primary); }
-.nav-title { font-size: 13px; color: var(--color-text-secondary); }
-
-.typing { display: inline-flex; gap: 3px; align-items: center; }
-.typing span { width: 5px; height: 5px; background: var(--color-text-tertiary); border-radius: 50%; animation: bounce 1.2s infinite; }
-.typing span:nth-child(2) { animation-delay: 0.2s; }
-.typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-</style>
-
-<div class="app">
-
-<div id="home" class="screen active">
-  <div class="hero">
-    <h1>DCUSH Study App</h1>
-    <p>Choose a topic from your study guide, pick your question mode, and get AI-powered feedback.</p>
-  </div>
-  <div class="topic-grid" id="topicGrid"></div>
-</div>
-
-<div id="topicScreen" class="screen">
-  <div class="nav-bar">
-    <button class="nav-back" onclick="showHome()"><i class="ti ti-arrow-left"></i> All topics</button>
-  </div>
-  <div id="topicTitle" style="font-size:20px;font-weight:500;margin-bottom:6px;color:var(--color-text-primary)"></div>
-  <div id="topicSection" style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:1.25rem;"></div>
-  
-  <div class="briefing-box" id="briefingBox"></div>
-
-  <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;">Choose question mode</div>
-  <div class="mode-row">
-    <button class="mode-btn" id="modemc" onclick="selectMode('mc')"><i class="ti ti-list-check" aria-hidden="true"></i> Multiple choice</button>
-    <button class="mode-btn" id="modeeq" onclick="selectMode('eq')"><i class="ti ti-writing" aria-hidden="true"></i> Essay / short answer</button>
-    <button class="mode-btn" id="modetable" onclick="selectMode('table')"><i class="ti ti-table" aria-hidden="true"></i> Table work</button>
-  </div>
-
-  <div id="questionArea"></div>
-</div>
-
-<div id="scoreScreen" class="screen">
-  <div class="nav-bar">
-    <button class="nav-back" onclick="showHome()"><i class="ti ti-arrow-left"></i> All topics</button>
-  </div>
-  <div class="score-screen">
-    <div style="font-size:15px;color:var(--color-text-secondary)">Your score</div>
-    <div class="score-big" id="scoreBig"></div>
-    <div class="score-sub" id="scoreSub"></div>
-    <div class="score-detail" id="scoreDetail"></div>
-    <button class="btn primary" onclick="showHome()">Study another topic</button>
-  </div>
-</div>
-
-</div>
-
-<script>
-const TOPICS = [
-  {
-    id: 0, section: "Section 1", title: "Industrial Growth",
-    briefing: `<h2>Industrial Growth & Economic Change</h2><p>In the late 1800s, the U.S. transformed from an agricultural to an industrial economy. Key ideas:</p><ul><li><strong>Railroads, steel, and oil</strong> were the dominant industries</li><li><strong>Vertical integration</strong> = controlling every step of production (Carnegie)</li><li><strong>Horizontal integration</strong> = buying out competitors (Rockefeller)</li><li>A <strong>monopoly</strong> gives one company total market control</li><li>Workers faced dangerous conditions → rise of labor unions</li><li><strong>Muckrakers</strong> exposed corruption, pushing for reform</li></ul>`,
-    mc: [
-      { q: "What term describes a strategy where one company controls every stage of production, from raw materials to finished product?", opts: ["Horizontal integration","Monopoly","Vertical integration","Laissez-faire economics"], ans: 2 },
-      { q: "Which practice describes buying out competitor companies in the same industry to reduce competition?", opts: ["Vertical integration","Horizontal integration","Trust-busting","Muckraking"], ans: 1 },
-      { q: "Investigative journalists who exposed corporate corruption and social problems in the early 1900s were called:", opts: ["Robber barons","Populists","Muckrakers","Progressives"], ans: 2 },
-      { q: "What economic philosophy argues the government should have minimal interference in business and markets?", opts: ["Populism","Progressivism","Antitrust policy","Laissez-faire economics"], ans: 3 },
-    ],
-    eq: "Explain how industrial growth transformed the American economy and society in the late 19th and early 20th centuries. What were the major innovations, and how did they affect workers and consumers?",
-    table: null
-  },
-  {
-    id: 1, section: "Section 1", title: "Lend-Lease Act",
-    briefing: `<h2>Lend-Lease Act & US Foreign Policy</h2><p>Before WWII, America was deeply <strong>isolationist</strong>. The Neutrality Acts (1935-37) banned selling arms to warring nations. But as Nazi Germany crushed Europe, FDR needed to help without entering the war directly.</p><ul><li><strong>Lend-Lease Act (1941)</strong> allowed the US to lend/lease weapons to Allied nations</li><li>FDR called the US the "Arsenal of Democracy"</li><li>Major shift: from isolationism toward <strong>interventionism</strong></li><li>The US was helping one side — a non-neutral act — before officially entering the war</li></ul>`,
-    mc: [
-      { q: "The Lend-Lease Act represented a shift away from which longstanding American foreign policy?", opts: ["Imperialism","Isolationism","Containment","Détente"], ans: 1 },
-      { q: "What did the Lend-Lease Act allow the United States to do?", opts: ["Declare war on Germany","Supply military equipment to Allied nations","Draft soldiers for overseas service","Impose trade sanctions on Japan"], ans: 1 },
-      { q: "Which legislation from 1935-1937 had originally prohibited US arms sales to warring nations?", opts: ["The War Powers Act","The Marshall Plan","The Neutrality Acts","The Monroe Doctrine"], ans: 2 },
-      { q: "FDR described the US role under Lend-Lease as the:", opts: ["Guardian of Liberty","Arsenal of Democracy","Global Policeman","Iron Curtain"], ans: 1 },
-    ],
-    eq: "Describe the purpose of the Lend-Lease Act and explain how it reflected a shift in American foreign policy before the United States officially entered World War II.",
-    table: null
-  },
-  {
-    id: 2, section: "Section 1", title: "Pearl Harbor",
-    briefing: `<h2>Pearl Harbor & Its Consequences</h2><p>On <strong>December 7, 1941</strong>, Japan launched a surprise attack on the US naval base at Pearl Harbor, Hawaii.</p><ul><li>Over <strong>2,400 Americans killed</strong>; most of the Pacific Fleet damaged</li><li>Crucially, US aircraft carriers were out to sea and survived</li><li>FDR called it "a date which will live in infamy"</li><li>Congress declared war on Japan the <strong>next day</strong></li><li>Germany and Italy declared war on the US days later</li><li>Public opinion shifted instantly — the isolationism debate ended overnight</li></ul>`,
-    mc: [
-      { q: "When did Japan attack Pearl Harbor?", opts: ["December 7, 1941","September 1, 1939","June 6, 1944","August 6, 1945"], ans: 0 },
-      { q: "Why was it significant that US aircraft carriers were not at Pearl Harbor during the attack?", opts: ["It meant Japan had failed its main objective","Carriers were the most important naval weapons and survived intact","It proved the attack was a failure","It allowed the US to immediately counterattack Japan"], ans: 1 },
-      { q: "What was the most immediate political consequence of the Pearl Harbor attack?", opts: ["FDR resigned from office","The US declared war on Germany","Congress declared war on Japan the next day","The US imposed an oil embargo on Japan"], ans: 2 },
-      { q: "How did Pearl Harbor affect American public opinion about entering WWII?", opts: ["It divided the country further","It had little effect on public opinion","It unified the public and ended the isolationism debate","Most Americans still opposed entering the war"], ans: 2 },
-    ],
-    eq: "Analyze the attack on Pearl Harbor on December 7, 1941. What were the immediate military consequences, and how did it change American public opinion regarding entry into World War II?",
-    table: null
-  },
-  {
-    id: 3, section: "Section 1", title: "Atomic Bombs Decision",
-    briefing: `<h2>The Decision to Use Atomic Bombs</h2><p>In August 1945, President Truman faced a fateful choice. Japan refused to surrender despite massive conventional bombing.</p><ul><li><strong>Arguments FOR</strong>: Would end the war quickly, avoid a US invasion of Japan (estimated 500k+ casualties), saved lives overall</li><li><strong>Arguments AGAINST</strong>: Indiscriminate civilian casualties, Japan may have surrendered anyway, opened nuclear arms race, moral concerns</li><li>Hiroshima: <strong>August 6, 1945</strong> — 70,000+ killed instantly</li><li>Nagasaki: <strong>August 9, 1945</strong> — 40,000+ killed</li><li>Japan surrendered September 2 (V-J Day)</li><li>Long-term: Nuclear arms race, Cold War deterrence, MAD doctrine</li></ul>`,
-    mc: [
-      { q: "What was the primary argument Truman used to justify dropping atomic bombs on Japan?", opts: ["To punish Japan for Pearl Harbor","To prevent a costly US ground invasion of Japan","To impress the Soviet Union","To test the new weapon in combat"], ans: 1 },
-      { q: "On what date was the atomic bomb dropped on Hiroshima?", opts: ["August 9, 1945","August 6, 1945","September 2, 1945","May 8, 1945"], ans: 1 },
-      { q: "What long-term consequence did the use of atomic bombs most directly trigger?", opts: ["The Korean War","The Marshall Plan","A nuclear arms race with the Soviet Union","The collapse of the United Nations"], ans: 2 },
-      { q: "Which argument was made AGAINST using atomic bombs?", opts: ["Japan's military was still very strong","The bomb might not work","It caused indiscriminate civilian casualties","The US lacked the resources to invade Japan"], ans: 2 },
-    ],
-    eq: "Evaluate the arguments for and against the use of atomic bombs on Hiroshima and Nagasaki. What factors influenced President Truman's decision, and what were the long-term implications?",
-    table: null
-  },
-  {
-    id: 4, section: "Section 1", title: "Civil Rights Tactics",
-    briefing: `<h2>Civil Rights Protest Tactics</h2><p>The Civil Rights Movement used multiple strategies to challenge segregation and inequality:</p><ul><li><strong>Sit-ins</strong>: Protesters occupied segregated lunch counters (Greensboro 1960). Forced businesses to serve them or face economic damage.</li><li><strong>Boycotts</strong>: Montgomery Bus Boycott (1955-56) — Black residents refused to ride buses for 381 days. Hit businesses in the wallet.</li><li><strong>Marches</strong>: March on Washington (1963), Selma to Montgomery (1965). Built public awareness nationally.</li><li><strong>Freedom Rides</strong>: Activists rode buses into the South to challenge segregation on interstate travel.</li><li>Nonviolence was key — protesters absorbing violence earned national sympathy and media coverage.</li></ul>`,
-    mc: [
-      { q: "What protest tactic involved Black customers occupying seats at segregated lunch counters and refusing to leave?", opts: ["Boycott","Freedom Ride","Sit-in","March"], ans: 2 },
-      { q: "The Montgomery Bus Boycott was sparked when which civil rights figure refused to give up her seat?", opts: ["Coretta Scott King","Fannie Lou Hamer","Rosa Parks","Ida B. Wells"], ans: 2 },
-      { q: "Why was nonviolent protest particularly effective as a civil rights strategy?", opts: ["It was required by law","It earned national sympathy when protesters were met with violence","It was less risky for participants","The government supported nonviolent protest"], ans: 1 },
-      { q: "Freedom Riders rode buses through the South primarily to challenge:", opts: ["School segregation","Voting restrictions","Segregation on interstate travel","Housing discrimination"], ans: 2 },
-    ],
-    eq: "Compare and contrast different protest tactics used during the Civil Rights Movement, such as sit-ins, boycotts, and peaceful marches. Which tactics were most effective, and why?",
-    table: {
-      headers: ["Event & Date", "Protest Tactic(s)", "Area Challenged", "Details"],
-      rows: [
-        ["Montgomery Bus Boycott (1955-56)", "", "", ""],
-        ["Greensboro Sit-ins (1960)", "", "", ""],
-        ["Freedom Rides (1961)", "", "", ""],
-        ["March on Washington (1963)", "", "", ""],
-        ["Selma to Montgomery March (1965)", "", "", ""],
-      ]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DCUSH Study App</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#111827;
+      --card2:#1f2937;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#38bdf8;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --border:#334155;
     }
-  },
-  {
-    id: 5, section: "Section 1", title: "Vietnam War",
-    briefing: `<h2>Vietnam War & American Society</h2><p>The Vietnam War (1955-1975) became the most divisive conflict in modern American history.</p><ul><li><strong>Hawks</strong> supported the war; <strong>Doves</strong> opposed it</li><li><strong>Tet Offensive (1968)</strong>: Massive Viet Cong attack shattered public confidence — the "credibility gap" widened</li><li>Opposition grew over: the draft, civilian casualties, My Lai Massacre, Pentagon Papers revelations</li><li>Students burned draft cards; major protests at universities</li><li><strong>After 1973 (War Powers Act)</strong>: Congress reasserted power over war declarations; public skepticism of government grew; US more cautious about military intervention ("Vietnam Syndrome")</li></ul>`,
-    mc: [
-      { q: "What 1968 event most dramatically turned American public opinion against the Vietnam War?", opts: ["My Lai Massacre","Gulf of Tonkin Incident","Tet Offensive","Pentagon Papers release"], ans: 2 },
-      { q: "The term 'credibility gap' referred to:", opts: ["The military advantage North Vietnam had over the US","The difference between what the government said and what was actually happening","The gap in spending between the US and Soviet Union","The communication failure at the Pentagon"], ans: 1 },
-      { q: "What long-term effect did the Vietnam War have on American foreign policy after 1973?", opts: ["The US became more aggressive in military intervention","The US dissolved NATO","The US became more cautious about military intervention abroad","The US increased the defense budget significantly"], ans: 2 },
-      { q: "The Gulf of Tonkin Incident (1964) was significant because it:", opts: ["Ended US involvement in Vietnam","Led to major US military escalation in Vietnam","Resulted in a peace treaty with North Vietnam","Caused the fall of Saigon"], ans: 1 },
-    ],
-    eq: "Explain how the Vietnam War divided American society. What were the main reasons for opposition to the war, and how did the conflict affect American foreign policy after 1973?",
-    table: {
-      headers: ["Term", "Definition", "Historical Importance", "How it made war hard to win"],
-      rows: [
-        ["Guerrilla Warfare", "", "", ""],
-        ["Tet Offensive", "", "", ""],
-        ["Ho Chi Minh Trail", "", "", ""],
-        ["Tunnel Systems", "", "", ""],
-        ["Body Count", "", "", ""],
-        ["Credibility Gap", "", "", ""],
-      ]
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg, #0f172a, #111827);
+      color:var(--text);
     }
-  },
-  {
-    id: 6, section: "Section 2", title: "Great Depression Causes",
-    briefing: `<h2>Causes of the Great Depression</h2><p>The Great Depression (1929-1939) had multiple interlocking causes:</p><ul><li><strong>Stock market crash (1929)</strong>: Over-speculation and buying on margin led to collapse</li><li><strong>Bank failures</strong>: Thousands of banks closed, wiping out savings</li><li><strong>Overproduction</strong>: Factories and farms produced more than consumers could buy</li><li><strong>Weak agricultural sector</strong>: Farmers already struggling through the 1920s</li><li><strong>Global factors</strong>: WWI debt, Smoot-Hawley Tariff choked international trade</li><li><strong>Income inequality</strong>: Wealth concentrated at the top; most couldn't sustain consumer spending</li></ul>`,
-    mc: [
-      { q: "Buying stocks with borrowed money, expecting prices to keep rising, is called:", opts: ["Short selling","Buying on margin","Deficit spending","Horizontal integration"], ans: 1 },
-      { q: "The Smoot-Hawley Tariff made the Great Depression worse primarily by:", opts: ["Raising taxes on American workers","Reducing consumer purchasing power directly","Triggering a global trade war that hurt US exports","Causing the stock market to crash"], ans: 2 },
-      { q: "Which of the following was NOT a cause of the Great Depression?", opts: ["Overproduction in factories and farms","Widespread bank failures","A major world war beginning in 1929","Excessive stock market speculation"], ans: 2 },
-      { q: "How did income inequality contribute to the Great Depression?", opts: ["Rich people refused to pay taxes","Most Americans lacked the purchasing power to sustain the economy","The government redistributed wealth poorly","Unions drove up wages too high"], ans: 1 },
-    ],
-    eq: "Analyze the multiple causes that led to the Great Depression of the 1930s. Consider economic, social, and political factors. How did the stock market crash relate to broader economic problems?",
-    table: null
-  },
-  {
-    id: 7, section: "Section 2", title: "The New Deal",
-    briefing: `<h2>The New Deal & the Three Rs</h2><p>FDR's New Deal (1933-1939) aimed to rescue the country through three goals:</p><ul><li><strong>Relief</strong>: Immediate help for the unemployed and poor — CCC, FERA, WPA put millions to work</li><li><strong>Recovery</strong>: Stimulate the economy — AAA helped farmers, NRA set fair business practices</li><li><strong>Reform</strong>: Prevent future depressions — FDIC insured bank deposits, SEC regulated the stock market, Social Security Act created a safety net</li><li>The New Deal expanded federal government power enormously</li><li>Did NOT end the Depression — WWII spending finally did that — but stabilized the economy and restored confidence</li></ul>`,
-    mc: [
-      { q: "Which New Deal program insured bank deposits to restore public confidence in banks?", opts: ["SEC","Social Security","FDIC","CCC"], ans: 2 },
-      { q: "The Civilian Conservation Corps (CCC) addressed which of the three Rs?", opts: ["Recovery","Reform","Relief","Regulation"], ans: 2 },
-      { q: "What ultimately ended the Great Depression, according to most historians?", opts: ["The New Deal's recovery programs","World War II defense spending","The Social Security Act","Repealing Prohibition"], ans: 1 },
-      { q: "The Securities and Exchange Commission (SEC) was created to:", opts: ["Insure bank deposits","Provide jobs for the unemployed","Regulate the stock market to prevent future crashes","Help farmers with crop prices"], ans: 2 },
-    ],
-    eq: "Explain President Franklin D. Roosevelt's New Deal and its three main objectives: Relief, Recovery, and Reform. Provide specific examples of programs and legislation that addressed each objective. Was the New Deal successful in ending the Great Depression?",
-    table: null
-  },
-  {
-    id: 8, section: "Section 2", title: "MLK & Nonviolent Protest",
-    briefing: `<h2>Martin Luther King Jr. & Nonviolent Resistance</h2><p>MLK drew on Gandhi's philosophy of <strong>satyagraha</strong> (truth-force) and Christian ethics to build the most powerful civil rights movement in US history.</p><ul><li>Key idea: Accept suffering without retaliation to expose the injustice of the oppressor</li><li><strong>Achievements</strong>: Civil Rights Act (1964), Voting Rights Act (1965), raised national consciousness</li><li><strong>Contrast with Malcolm X</strong>: Malcolm X advocated Black nationalism and self-defense; MLK's nonviolence was more broadly acceptable to white moderates</li><li><strong>Limitations</strong>: Slower pace frustrated many; did not address economic inequality; couldn't solve de facto segregation in the North</li></ul>`,
-    mc: [
-      { q: "MLK's philosophy of nonviolent resistance was most directly inspired by:", opts: ["Marcus Garvey","Malcolm X","Mahatma Gandhi","W.E.B. Du Bois"], ans: 2 },
-      { q: "How did Malcolm X's approach to civil rights differ from MLK's?", opts: ["Malcolm X focused only on voting rights","Malcolm X advocated Black nationalism and self-defense rather than nonviolence","Malcolm X worked closely with white moderate politicians","Malcolm X opposed all forms of protest"], ans: 1 },
-      { q: "Which legislation is most directly credited to the nonviolent civil rights campaign MLK led?", opts: ["The 13th Amendment","Brown v. Board of Education","The Civil Rights Act of 1964","The Fair Housing Act of 1968"], ans: 2 },
-      { q: "What was a key limitation of nonviolent protest in the Civil Rights Movement?", opts: ["It was illegal in most Southern states","It failed to produce any legislation","It could not easily address economic inequality and de facto segregation","White Americans universally rejected it"], ans: 2 },
-    ],
-    eq: "Discuss Martin Luther King Jr.'s philosophy of nonviolent resistance and its impact on the Civil Rights Movement. How did his approach differ from other civil rights leaders? What were the achievements and limitations of nonviolent protest?",
-    table: null
-  },
-  {
-    id: 9, section: "Section 2", title: "Collapse of Soviet Union",
-    briefing: `<h2>Collapse of the Soviet Union (1991)</h2><p>The USSR's collapse was driven by overlapping pressures:</p><ul><li><strong>Economic stagnation</strong>: Centrally planned economy couldn't compete; consumer goods were scarce; military spending was crushing</li><li><strong>Gorbachev's reforms</strong>: <em>Glasnost</em> (openness/transparency) and <em>perestroika</em> (restructuring) unleashed forces he couldn't control</li><li><strong>Nationalist movements</strong>: Baltic states (Estonia, Latvia, Lithuania) and others demanded independence</li><li><strong>Reagan's SDI</strong>: Pressured the Soviets to spend even more they didn't have</li><li><strong>Global consequences</strong>: End of Cold War, NATO expansion, emergence of 15 new nations, US as sole superpower</li></ul>`,
-    mc: [
-      { q: "What was Gorbachev's policy of 'openness and transparency' that allowed criticism of the Soviet government called?", opts: ["Perestroika","Détente","Glasnost","Solidarity"], ans: 2 },
-      { q: "What was perestroika?", opts: ["A Soviet military strategy","Gorbachev's policy of economic and governmental restructuring","The Soviet space program","A nuclear arms reduction treaty"], ans: 1 },
-      { q: "How did the arms race with the United States contribute to the Soviet collapse?", opts: ["It caused a military defeat for the Soviets","Military spending drained resources from the already struggling Soviet economy","The US invaded Soviet territory","Nuclear weapons became obsolete"], ans: 1 },
-      { q: "What was a major global consequence of the Soviet Union's collapse?", opts: ["The US and Russia formed a military alliance","The Cold War ended and the US became the world's sole superpower","The United Nations dissolved","NATO was disbanded"], ans: 1 },
-    ],
-    eq: "Analyze the factors that contributed to the collapse of the Soviet Union in 1991. How did economic stagnation, political reform, and nationalist movements lead to the end of the Cold War? What were the global consequences?",
-    table: null
-  },
-  {
-    id: 10, section: "Section 2", title: "Brown v. Board of Education",
-    briefing: `<h2>Brown v. Board of Education (1954)</h2><p>This landmark Supreme Court case transformed American education and law:</p><ul><li>Overturned <strong>Plessy v. Ferguson (1896)</strong> which had established "separate but equal"</li><li>Chief Justice Earl Warren wrote a unanimous decision: separate schools are <em>inherently</em> unequal</li><li>Argued by <strong>Thurgood Marshall</strong> for the NAACP</li><li><strong>Challenges after</strong>: "Southern Manifesto" — 100 congressmen pledged resistance; Little Rock Crisis (1957) required federal troops; <em>de facto</em> segregation in the North was not addressed</li><li>Legacy: Sparked massive resistance but also the modern Civil Rights Movement</li></ul>`,
-    mc: [
-      { q: "Which 1896 Supreme Court case did Brown v. Board of Education overturn?", opts: ["Marbury v. Madison","McCulloch v. Maryland","Plessy v. Ferguson","Korematsu v. United States"], ans: 2 },
-      { q: "Who argued the Brown v. Board case before the Supreme Court on behalf of the NAACP?", opts: ["Martin Luther King Jr.","Thurgood Marshall","W.E.B. Du Bois","John Lewis"], ans: 1 },
-      { q: "What did the Brown decision declare about 'separate but equal' schools?", opts: ["They were acceptable if truly equal in resources","They were unconstitutional — separate is inherently unequal","They were only unconstitutional in the South","They violated the 13th Amendment"], ans: 1 },
-      { q: "What challenge did Brown v. Board NOT directly address?", opts: ["Legal segregation in Southern schools","De facto segregation in Northern cities","Segregation mandated by state law","Unequal school resources between races"], ans: 1 },
-    ],
-    eq: "Explain the significance of the Supreme Court case Brown v. Board of Education (1954). How did it overturn previous legal precedent? What challenges did school desegregation face in the years following this decision?",
-    table: null
-  },
-  {
-    id: 11, section: "Section 2", title: "Federal Power Expansion",
-    briefing: `<h2>Expansion of Federal Government Power</h2><p>From the New Deal through the Cold War, the federal government took on massive new roles:</p><ul><li><strong>New Deal (1930s)</strong>: Social Security, bank regulation, agricultural programs, labor rights — Washington now responsible for economic welfare</li><li><strong>WWII</strong>: Total war mobilization; rationing; federal control of industries</li><li><strong>Cold War</strong>: Huge military-industrial complex; CIA; NSA; nuclear arsenal; draft</li><li><strong>Civil Rights era</strong>: Federal government enforced integration, protected voting rights</li><li><strong>Great Society (LBJ)</strong>: Medicare, Medicaid, federal education funding</li><li>Tension: More federal power vs. individual freedoms and states' rights — a debate that continues today</li></ul>`,
-    mc: [
-      { q: "Which New Deal program most directly expanded the federal government's role in providing a social safety net?", opts: ["The CCC","Social Security Act","The SEC","The FDIC"], ans: 1 },
-      { q: "Eisenhower famously warned about the dangers of the:", opts: ["Nuclear arms race","Domino Theory","Military-industrial complex","Iron Curtain"], ans: 2 },
-      { q: "During WWII, federal power expanded most dramatically through:", opts: ["New social welfare programs","Total war mobilization and control of industries","Civil rights legislation","Educational funding increases"], ans: 1 },
-      { q: "What was a key tension created by expanding federal government power?", opts: ["The federal government ran out of money","It threatened individual freedoms and states' rights","It reduced military spending","It weakened the presidency"], ans: 1 },
-    ],
-    eq: "Trace the expansion of federal government power from the New Deal through the Cold War era. What new roles and responsibilities did the federal government assume? How did this expansion affect American society and individual freedoms?",
-    table: null
-  },
-];
-
-let currentTopic = null;
-let currentMode = null;
-let currentQ = 0;
-let answers = [];
-let scores = [];
-let tableData = {};
-
-function showHome() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('home').classList.add('active');
-}
-
-function buildTopicGrid() {
-  const grid = document.getElementById('topicGrid');
-  grid.innerHTML = '';
-  TOPICS.forEach((t, i) => {
-    const card = document.createElement('div');
-    card.className = 'topic-card';
-    card.innerHTML = `<div class="topic-num">${t.section}</div><h3>${t.title}</h3><p style="font-size:11px;color:var(--color-text-tertiary)">MC · Essay${t.table ? ' · Table' : ''}</p>`;
-    card.onclick = () => openTopic(i);
-    grid.appendChild(card);
-  });
-}
-
-function openTopic(idx) {
-  currentTopic = TOPICS[idx];
-  currentMode = null;
-  currentQ = 0;
-  answers = [];
-  scores = [];
-  tableData = {};
-
-  document.getElementById('topicTitle').textContent = currentTopic.title;
-  document.getElementById('topicSection').textContent = currentTopic.section;
-  document.getElementById('briefingBox').innerHTML = currentTopic.briefing;
-  
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-  
-  const tableBtn = document.getElementById('modetable');
-  if (!currentTopic.table) {
-    tableBtn.style.opacity = '0.35';
-    tableBtn.style.pointerEvents = 'none';
-  } else {
-    tableBtn.style.opacity = '1';
-    tableBtn.style.pointerEvents = 'auto';
-  }
-
-  document.getElementById('questionArea').innerHTML = '';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('topicScreen').classList.add('active');
-}
-
-function selectMode(mode) {
-  currentMode = mode;
-  currentQ = 0;
-  answers = [];
-  scores = [];
-  tableData = {};
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('mode'+mode).classList.add('selected');
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const area = document.getElementById('questionArea');
-  if (currentMode === 'mc') renderMC(area);
-  else if (currentMode === 'eq') renderEQ(area);
-  else if (currentMode === 'table') renderTable(area);
-}
-
-function renderMC(area) {
-  const qs = currentTopic.mc;
-  const q = qs[currentQ];
-  const total = qs.length;
-  const pct = Math.round((currentQ / total) * 100);
-
-  area.innerHTML = `
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-    <div class="question-area">
-      <div class="q-label">Question ${currentQ + 1} of ${total}</div>
-      <div class="q-text">${q.q}</div>
-      <div class="mc-options" id="mcOpts">
-        ${q.opts.map((o, i) => `<div class="mc-opt" id="opt${i}" onclick="selectMC(${i})"><span class="opt-letter">${'ABCD'[i]}.</span>${o}</div>`).join('')}
+    header{
+      padding:28px 20px;
+      background:rgba(15,23,42,.9);
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter:blur(10px);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+    h1,h2,h3{margin:0 0 10px}
+    p{line-height:1.6;color:var(--muted)}
+    nav{
+      display:flex;flex-wrap:wrap;gap:10px;margin-top:16px
+    }
+    nav a{
+      color:var(--text);
+      text-decoration:none;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    nav a:hover{border-color:var(--accent)}
+    section{
+      margin:24px 0;
+      padding:20px;
+      background:rgba(17,24,39,.9);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:16px;
+    }
+    .card{
+      background:var(--card2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:16px;
+    }
+    .q{
+      margin-bottom:14px;
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+    }
+    label{display:block;margin:8px 0;color:var(--text)}
+    input[type="text"], textarea, select{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:#0b1220;
+      color:var(--text);
+      margin-top:8px;
+      font-family:inherit;
+    }
+    textarea{min-height:120px;resize:vertical}
+    button{
+      margin-top:12px;
+      padding:12px 18px;
+      border:none;
+      border-radius:12px;
+      background:var(--accent);
+      color:#082f49;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    button:hover{filter:brightness(1.05)}
+    .result{
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      color:var(--text);
+    }
+    .good{color:var(--accent2)}
+    .bad{color:var(--danger)}
+    .muted{color:var(--muted)}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      overflow:hidden;
+      border-radius:12px;
+    }
+    th,td{
+      border:1px solid var(--border);
+      padding:10px;
+      vertical-align:top;
+    }
+    th{background:#0b1220}
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(56,189,248,.15);
+      color:#7dd3fc;
+      border:1px solid rgba(56,189,248,.35);
+      margin-right:8px;
+      margin-bottom:8px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>DCUSH Study App</h1>
+        <p>Practice multiple choice, essay responses, and table review for your 2nd-semester final.</p>
+      </div>
+      <div>
+        <span class="badge">Quiz</span>
+        <span class="badge">Essay Practice</span>
+        <span class="badge">Table Review</span>
+        <span class="badge">Instant Feedback</span>
       </div>
     </div>
-    <div id="mcFeedback"></div>
-    <div class="btn-row">
-      <button class="btn primary" id="submitMC" onclick="submitMC()" disabled>Submit answer</button>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#mcq">Multiple Choice</a>
+      <a href="#essay">Essay Practice</a>
+      <a href="#tables">Tables</a>
+      <a href="#study">Study Tips</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="home">
+    <h2>Welcome</h2>
+    <p>This site helps you review important DCUSH topics from industrialization through the Cold War, civil rights, Vietnam, and the modern era. Use the quiz for quick practice, the essay boxes for written responses, and the table section for chronology and terms.</p>
+  </section>
+
+  <section id="mcq">
+    <h2>Multiple Choice Practice</h2>
+    <div id="mcqContainer" class="grid"></div>
+    <button onclick="gradeMCQ()">Grade Multiple Choice</button>
+    <div id="mcqResult" class="result"></div>
+  </section>
+
+  <section id="essay">
+    <h2>Essay Practice with AI-Style Feedback</h2>
+    <p class="muted">Type your response. The feedback checks for key ideas, historical evidence, and clarity.</p>
+
+    <div class="q">
+      <label>1. Explain how industrial growth transformed the American economy and society.
+        <textarea id="essay1"></textarea>
+      </label>
     </div>
-  `;
-}
 
-let selectedOpt = null;
-function selectMC(i) {
-  if (document.getElementById('submitMC').disabled === false && document.getElementById('opt0').classList.contains('correct')) return;
-  selectedOpt = i;
-  document.querySelectorAll('.mc-opt').forEach((el, idx) => {
-    el.classList.toggle('selected', idx === i);
-  });
-  document.getElementById('submitMC').disabled = false;
-}
-
-function submitMC() {
-  const q = currentTopic.mc[currentQ];
-  const correct = selectedOpt === q.ans;
-  scores.push(correct ? 1 : 0);
-  answers.push(selectedOpt);
-
-  document.querySelectorAll('.mc-opt').forEach((el, idx) => {
-    el.classList.remove('selected');
-    if (idx === q.ans) el.classList.add('correct');
-    else if (idx === selectedOpt && !correct) el.classList.add('wrong');
-  });
-
-  const fb = document.getElementById('mcFeedback');
-  fb.innerHTML = correct
-    ? `<div class="feedback-box success"><div class="feedback-label"><i class="ti ti-circle-check"></i> Correct!</div>Well done. <strong>${q.opts[q.ans]}</strong> is right.</div>`
-    : `<div class="feedback-box error"><div class="feedback-label"><i class="ti ti-circle-x"></i> Not quite</div>The correct answer is <strong>${q.opts[q.ans]}</strong>.</div>`;
-
-  const submitBtn = document.getElementById('submitMC');
-  submitBtn.textContent = currentQ < currentTopic.mc.length - 1 ? 'Next question →' : 'See results';
-  submitBtn.onclick = () => {
-    if (currentQ < currentTopic.mc.length - 1) { currentQ++; selectedOpt = null; renderMC(document.getElementById('questionArea')); }
-    else showMCScore();
-  };
-  submitBtn.disabled = false;
-}
-
-function showMCScore() {
-  const total = scores.length;
-  const correct = scores.reduce((a,b) => a+b, 0);
-  const pct = Math.round((correct/total)*100);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('scoreScreen').classList.add('active');
-  document.getElementById('scoreBig').textContent = `${correct}/${total}`;
-  document.getElementById('scoreSub').textContent = `${pct}% correct · ${currentTopic.title}`;
-  const detail = document.getElementById('scoreDetail');
-  detail.innerHTML = `<div style="font-size:13px;font-weight:500;margin-bottom:10px;">Question breakdown</div>` +
-    currentTopic.mc.map((q, i) => `
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:13px;">
-        <i class="ti ${scores[i] ? 'ti-circle-check' : 'ti-circle-x'}" style="color:${scores[i] ? '#0F6E56' : '#993C1D'};margin-top:1px;flex-shrink:0;" aria-hidden="true"></i>
-        <span style="color:var(--color-text-secondary)">${q.q}</span>
-      </div>`).join('');
-}
-
-function renderEQ(area) {
-  area.innerHTML = `
-    <div class="question-area">
-      <div class="q-label">Essay / Short answer</div>
-      <div class="q-text">${currentTopic.eq}</div>
-      <textarea class="eq-input" id="eqInput" placeholder="Type your answer here..."></textarea>
+    <div class="q">
+      <label>2. Describe the purpose of the Lend-Lease Act and how it changed U.S. foreign policy.
+        <textarea id="essay2"></textarea>
+      </label>
     </div>
-    <div id="eqFeedback"></div>
-    <div class="btn-row">
-      <button class="btn ai-btn" id="gradeBtn" onclick="gradeEQ()"><i class="ti ti-sparkles" aria-hidden="true"></i> Grade with AI ↗</button>
+
+    <div class="q">
+      <label>3. Discuss Martin Luther King Jr.'s philosophy of nonviolent resistance.
+        <textarea id="essay3"></textarea>
+      </label>
     </div>
-  `;
-}
 
-async function gradeEQ() {
-  const answer = document.getElementById('eqInput').value.trim();
-  if (!answer || answer.length < 20) {
-    document.getElementById('eqFeedback').innerHTML = `<div class="feedback-box error">Please write a more complete answer before grading.</div>`;
-    return;
-  }
+    <button onclick="gradeEssays()">Grade Essays</button>
+    <div id="essayResult" class="result"></div>
+  </section>
 
-  const btn = document.getElementById('gradeBtn');
-  btn.disabled = true;
-  const fb = document.getElementById('eqFeedback');
-  fb.innerHTML = `<div class="feedback-box loading"><div class="feedback-label">AI is reviewing your answer <div class="typing"><span></span><span></span><span></span></div></div></div>`;
-
-  const prompt = `You are a US History teacher grading a student's essay response. 
-
-Question: "${currentTopic.eq}"
-
-Student's answer: "${answer}"
-
-Please provide:
-1. A score out of 10 (be fair but rigorous)
-2. What the student did well (2-3 specific points)
-3. What's missing or could be improved (2-3 specific points)
-4. One key fact or concept they should make sure to include
-
-Keep your response concise and encouraging. Format clearly with labels for each section.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content.map(i => i.text || '').join('\n');
-    const scoreMatch = text.match(/(\d+)\s*\/\s*10/);
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
-    const level = score >= 8 ? 'success' : score >= 5 ? 'partial' : 'error';
-    fb.innerHTML = `<div class="feedback-box ${level}"><div class="feedback-label"><i class="ti ti-robot"></i> AI Feedback${score !== null ? ` · ${score}/10` : ''}</div><div style="white-space:pre-wrap;font-size:13px;">${text.replace(/</g,'&lt;')}</div></div>`;
-  } catch(e) {
-    fb.innerHTML = `<div class="feedback-box error">Couldn't connect to AI grader. Check your connection and try again.</div>`;
-  }
-  btn.disabled = false;
-}
-
-function renderTable(area) {
-  const t = currentTopic.table;
-  if (!t) return;
-  
-  const rows = t.rows.map((row, ri) =>
-    `<tr>${row.map((cell, ci) => ci === 0
-      ? `<td style="font-size:13px;color:var(--color-text-secondary);padding:8px 10px;border:0.5px solid var(--color-border-tertiary);min-width:120px;">${cell}</td>`
-      : `<td style="border:0.5px solid var(--color-border-tertiary);padding:4px;"><textarea data-r="${ri}" data-c="${ci}" style="width:100%;min-height:55px;border:none;background:transparent;font-size:12px;font-family:var(--font-sans);color:var(--color-text-primary);resize:vertical;outline:none;padding:4px;" placeholder="Type here..."></textarea></td>`
-    ).join('')}</tr>`
-  ).join('');
-
-  area.innerHTML = `
-    <div class="question-area" style="padding:1rem;">
-      <div class="q-label">Table work — fill in each cell</div>
+  <section id="tables">
+    <h2>Table Practice</h2>
+    <div class="card">
+      <h3>Civil Rights Events Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Event and Date</th>
+            <th>Protest Tactic</th>
+            <th>Area Challenged</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><input id="c1" placeholder="Montgomery Bus Boycott, 1955-56"></td><td><input id="c2" placeholder="Boycott"></td><td><input id="c3" placeholder="Public transportation"></td></tr>
+          <tr><td><input id="c4" placeholder="Brown v. Board of Education, 1954"></td><td><input id="c5" placeholder="Supreme Court case"></td><td><input id="c6" placeholder="School segregation"></td></tr>
+          <tr><td><input id="c7" placeholder="Greensboro Sit-ins, 1960"></td><td><input id="c8" placeholder="Sit-in"></td><td><input id="c9" placeholder="Lunch counters"></td></tr>
+          <tr><td><input id="c10" placeholder="Freedom Rides, 1961"></td><td><input id="c11" placeholder="Direct action"></td><td><input id="c12" placeholder="Interstate travel segregation"></td></tr>
+          <tr><td><input id="c13" placeholder="March on Washington, 1963"></td><td><input id="c14" placeholder="Peaceful march"></td><td><input id="c15" placeholder="Jobs and civil rights"></td></tr>
+        </tbody>
+      </table>
+      <button onclick="checkTables()">Check Table Answers</button>
+      <div id="tableResult" class="result"></div>
     </div>
-    <div class="table-area">
-      <table class="study-table">
-        <thead><tr>${t.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-        <tbody>${rows}</tbody>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Vietnam War Terms</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th>
+            <th>Definition</th>
+            <th>Why It Was Important</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Guerrilla Warfare</td><td><input id="v1"></td><td><input id="v2"></td></tr>
+          <tr><td>Tet Offensive</td><td><input id="v3"></td><td><input id="v4"></td></tr>
+          <tr><td>Ho Chi Minh Trail</td><td><input id="v5"></td><td><input id="v6"></td></tr>
+          <tr><td>Credibility Gap</td><td><input id="v7"></td><td><input id="v8"></td></tr>
+        </tbody>
       </table>
     </div>
-    <div id="tableFeedback"></div>
-    <div class="btn-row">
-      <button class="btn ai-btn" onclick="gradeTable()"><i class="ti ti-sparkles" aria-hidden="true"></i> Grade table with AI ↗</button>
+  </section>
+
+  <section id="study">
+    <h2>Study Tips</h2>
+    <div class="grid">
+      <div class="card"><strong>Flashcards</strong><p>Create cards for terms like containment, Brown v. Board, and perestroika.</p></div>
+      <div class="card"><strong>Timelines</strong><p>Put events in order from the Great Depression to the 2008 crisis.</p></div>
+      <div class="card"><strong>Essay Practice</strong><p>Use topic sentences, evidence, and a clear conclusion.</p></div>
     </div>
-  `;
-}
+  </section>
+</main>
 
-async function gradeTable() {
-  const cells = document.querySelectorAll('.study-table textarea');
-  let tableText = `Table: ${currentTopic.table.headers.join(' | ')}\n`;
-  currentTopic.table.rows.forEach((row, ri) => {
-    const vals = [row[0]];
-    cells.forEach(c => { if (parseInt(c.dataset.r) === ri) vals.push(c.value || '(blank)'); });
-    tableText += vals.join(' | ') + '\n';
+<script>
+const mcqData = [
+  {q:"What was the main goal of the New Deal?", choices:["Isolation from world affairs","Relief, recovery, and reform","Ending all taxes"], a:1},
+  {q:"Which event pushed the U.S. toward World War II?", choices:["Watergate","Pearl Harbor","D-Day"], a:1},
+  {q:"Which case ended legal school segregation?", choices:["Plessy v. Ferguson","Brown v. Board of Education","Roe v. Wade"], a:1},
+  {q:"What was the purpose of the Lend-Lease Act?", choices:["To help Allied nations with supplies","To end the draft","To begin the Cold War"], a:0},
+  {q:"What did the Tet Offensive do to American opinion?", choices:["It increased support for the war","It had no effect","It made many Americans doubt victory"], a:2}
+];
+
+function renderMCQ(){
+  const container = document.getElementById("mcqContainer");
+  container.innerHTML = "";
+  mcqData.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<div class="q"><strong>${i+1}. ${item.q}</strong></div>` +
+      item.choices.map((c, j) =>
+        `<label><input type="radio" name="q${i}" value="${j}"> ${c}</label>`
+      ).join("");
+    container.appendChild(div);
   });
-
-  const fb = document.getElementById('tableFeedback');
-  fb.innerHTML = `<div class="feedback-box loading"><div class="feedback-label">AI is reviewing your table <div class="typing"><span></span><span></span><span></span></div></div></div>`;
-
-  const prompt = `You are a US History teacher reviewing a student's completed table.
-
-Topic: ${currentTopic.title}
-
-${tableText}
-
-Please:
-1. Highlight 2-3 cells the student filled in well
-2. Identify 2-3 cells that need correction or more detail, and explain what should be there
-3. Give an overall completeness rating (e.g. "Well done", "Good start", "Needs more work")
-
-Be specific and helpful. Keep it concise.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content.map(i => i.text || '').join('\n');
-    fb.innerHTML = `<div class="feedback-box partial"><div class="feedback-label"><i class="ti ti-robot"></i> AI Table Feedback</div><div style="white-space:pre-wrap;font-size:13px;">${text.replace(/</g,'&lt;')}</div></div>`;
-  } catch(e) {
-    fb.innerHTML = `<div class="feedback-box error">Couldn't connect to AI grader. Try again.</div>`;
-  }
 }
 
-buildTopicGrid();
+function gradeMCQ(){
+  let score = 0;
+  mcqData.forEach((item, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if(selected && Number(selected.value) === item.a) score++;
+  });
+  document.getElementById("mcqResult").innerHTML =
+    `<strong>Score:</strong> ${score}/${mcqData.length}<br>` +
+    (score === mcqData.length ? `<span class="good">Perfect score. Great job.</span>` : `<span class="muted">Review the ones you missed and try again.</span>`);
+}
+
+function essayFeedback(text, keywords, name){
+  const lower = text.toLowerCase();
+  const hits = keywords.filter(k => lower.includes(k));
+  let feedback = `<strong>${name}:</strong> `;
+  if(hits.length >= 4){
+    feedback += `<span class="good">Strong response.</span> You included several key ideas: ${hits.join(", ")}.`;
+  } else if(hits.length >= 2){
+    feedback += `<span class="muted">Good start.</span> Add more evidence and details. You included: ${hits.join(", ")}.`;
+  } else {
+    feedback += `<span class="bad">Needs more detail.</span> Try adding key terms, specific examples, and historical evidence.`;
+  }
+  return feedback;
+}
+
+function gradeEssays(){
+  const e1 = document.getElementById("essay1").value;
+  const e2 = document.getElementById("essay2").value;
+  const e3 = document.getElementById("essay3").value;
+
+  const f1 = essayFeedback(e1, ["factory","railroad","steel","mass production","workers","consumers","urban","innovation"], "Industrial Growth");
+  const f2 = essayFeedback(e2, ["britain","allies","supplies","aid","neutrality","foreign policy","support"], "Lend-Lease");
+  const f3 = essayFeedback(e3, ["nonviolent","peaceful","civil disobedience","boycott","march","sit-in","jail","mlk"], "MLK and Nonviolence");
+
+  document.getElementById("essayResult").innerHTML = `${f1}<br><br>${f2}<br><br>${f3}`;
+}
+
+function checkTables(){
+  const answers = {
+    c1:"montgomery bus boycott", c2:"boycott", c3:"transportation",
+    c4:"brown v. board", c5:"supreme court", c6:"school",
+    c7:"greensboro", c8:"sit-in", c9:"lunch",
+    c10:"freedom rides", c11:"direct action", c12:"travel",
+    c13:"march on washington", c14:"march", c15:"jobs"
+  };
+  let score = 0;
+  Object.keys(answers).forEach(id => {
+    const val = document.getElementById(id).value.toLowerCase();
+    if(val.includes(answers[id])) score++;
+  });
+  document.getElementById("tableResult").innerHTML =
+    `<strong>Table Score:</strong> ${score}/${Object.keys(answers).length}<br>` +
+    (score >= 12 ? `<span class="good">Excellent table work.</span>` : `<span class="muted">Keep practicing the event names, tactics, and categories.</span>`);
+}
+
+renderMCQ();
 </script>
+</body>
+</html>
